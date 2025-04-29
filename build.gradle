@@ -41,6 +41,12 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// dynamodb
+	implementation platform('software.amazon.awssdk:bom:2.25.1') // BOM 관리
+	implementation 'software.amazon.awssdk:dynamodb'
+	implementation 'software.amazon.awssdk:auth'
+
 }
 
 dependencyManagement {
