@@ -43,9 +43,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// dynamodb
-	implementation platform('software.amazon.awssdk:bom:2.25.1')
-	implementation 'software.amazon.awssdk:dynamodb-enhanced'
-	implementation 'software.amazon.awssdk:auth'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.12.376'
+//	implementation platform('software.amazon.awssdk:bom:2.20.56')
+//	implementation("software.amazon.awssdk:dynamodb")
+//	implementation("software.amazon.awssdk:dynamodb-enhanced")
 
 }
 

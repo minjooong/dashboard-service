@@ -1,35 +1,49 @@
 package com.modive.dashboard.repository;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.modive.dashboard.entity.Drive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.enhanced.dynamodb.*;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class DriveRepository {
 
-    private final DynamoDbEnhancedClient enhancedClient;
-
-    private final String TABLE_NAME = "drive";
-
-    private DynamoDbTable<Drive> table() {
-        return enhancedClient.table(TABLE_NAME, TableSchema.fromBean(Drive.class));
-    }
+    private final DynamoDBMapper dynamoDBMapper;
 
     public void save(Drive drive) {
-        table().putItem(drive);
+        dynamoDBMapper.save(drive);
     }
 
-    public Optional<Drive> findById(String driveId) {
-        Drive key = Drive.builder().driveId(driveId).build();
-        Drive result = table().getItem(r -> r.key(k -> k.partitionValue(driveId)));
-        return Optional.ofNullable(result);
+    public Drive findById(String driveId) {
+        return dynamoDBMapper.load(Drive.class, driveId);
     }
 
     public void deleteById(String driveId) {
-        table().deleteItem(r -> r.key(k -> k.partitionValue(driveId)));
+        Drive drive = new Drive();
+        drive.setDriveId(driveId);
+        dynamoDBMapper.delete(drive);
+    }
+
+    public List<Drive> findAll() {
+        return dynamoDBMapper.scan(Drive.class, new DynamoDBScanExpression());
+    }
+
+    // 예: 특정 기간 이후 시작된 Drive 조회
+    public List<Drive> findByStartTimeAfter(String isoStartTime) {
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":startTime", new AttributeValue().withS(isoStartTime));
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withFilterExpression("startTime > :startTime")
+                .withExpressionAttributeValues(eav);
+
+        return dynamoDBMapper.scan(Drive.class, scanExpression);
     }
 }

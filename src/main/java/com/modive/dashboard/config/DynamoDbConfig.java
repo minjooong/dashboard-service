@@ -1,14 +1,17 @@
 package com.modive.dashboard.config;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import org.springframework.context.annotation.Primary;
 
 import java.net.URI;
 
@@ -16,7 +19,7 @@ import java.net.URI;
 public class DynamoDbConfig {
 
     @Value("${aws.dynamodb.endpoint}")
-    private String dynamoDbEndpoint;
+    private String endPoint;
 
     @Value("${aws.region}")
     private String region;
@@ -28,20 +31,32 @@ public class DynamoDbConfig {
     private String secretKey;
 
     @Bean
-    public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder()
-                .endpointOverride(URI.create(dynamoDbEndpoint)) // 로컬 DynamoDB 엔드포인트
-                .region(Region.of(region)) // 리전 설정
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey) // 액세스 키 및 비밀 키 설정
-                ))
+    public DynamoDBMapper dynamoDBMapper() {
+        DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig.builder()
+                .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.CLOBBER)
+                .withConsistentReads(DynamoDBMapperConfig.ConsistentReads.CONSISTENT)
+                .withTableNameOverride(null)
+                .withPaginationLoadingStrategy(DynamoDBMapperConfig.PaginationLoadingStrategy.EAGER_LOADING)
                 .build();
+
+        return new DynamoDBMapper(amazonDynamoDB(), mapperConfig);
+    }
+
+    @Primary
+    @Bean
+    public AWSCredentialsProvider awsCredentialsProvider() {
+        return new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey,secretKey));
     }
 
     @Bean
-    public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
-        return DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(dynamoDbClient)
+    public AmazonDynamoDB amazonDynamoDB() {
+        return AmazonDynamoDBClientBuilder
+                .standard()
+                .withEndpointConfiguration(
+                        new AwsClientBuilder.EndpointConfiguration(endPoint, region)
+                )
+                .withCredentials(awsCredentialsProvider())
                 .build();
     }
+
 }
