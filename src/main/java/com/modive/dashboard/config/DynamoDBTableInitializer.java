@@ -18,17 +18,21 @@ public class DynamoDBTableInitializer {
             )
             .build();
 
-    private static final String TABLE_NAME = "drive";
-
     @PostConstruct
-    public void createTableIfNotExists() {
+    public void createDriveIfNotExists() {
         ListTablesResult tables = dynamoDB.listTables();
-        if (!tables.getTableNames().contains(TABLE_NAME)) {
+        if (!tables.getTableNames().contains("drive")) {
             CreateTableRequest request = new CreateTableRequest()
-                    .withTableName(TABLE_NAME)
-                    .withKeySchema(new KeySchemaElement("driveId", KeyType.HASH))
-                    .withAttributeDefinitions(new AttributeDefinition("driveId", ScalarAttributeType.S))
-                    .withProvisionedThroughput(new ProvisionedThroughput(5L, 5L));
+                    .withTableName("drive")
+                    .withKeySchema(
+                        new KeySchemaElement("userId", KeyType.HASH),
+                        new KeySchemaElement("driveId", KeyType.RANGE)
+                    )
+                    .withAttributeDefinitions(
+                        new AttributeDefinition("userId", ScalarAttributeType.S),
+                        new AttributeDefinition("driveId", ScalarAttributeType.S)
+                    )
+                    .withBillingMode(BillingMode.PAY_PER_REQUEST);
 
             dynamoDB.createTable(request);
             System.out.println("✅ DynamoDB 테이블 'drive' 생성됨");
@@ -36,4 +40,5 @@ public class DynamoDBTableInitializer {
             System.out.println("ℹ️ DynamoDB 테이블 'drive' 이미 존재함");
         }
     }
+
 }

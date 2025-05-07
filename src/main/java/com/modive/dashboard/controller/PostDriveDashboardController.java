@@ -1,5 +1,6 @@
 package com.modive.dashboard.controller;
 
+import com.modive.dashboard.entity.Drive;
 import com.modive.dashboard.enums.ScoreType;
 import com.modive.dashboard.service.PostDriveDashboardService;
 import com.modive.dashboard.service.TotalDashboardService;
@@ -21,8 +22,8 @@ public class PostDriveDashboardController {
     // 1. 주행 후 대시보드 생성 및 누적 대시보드 업데이트 (주행 완료 처리)
     @PostMapping("/{driveId}")
     public ResponseEntity<Void> createPostDriveDashboard(
-            @RequestHeader("X-User-Id") Long userId, // TODO: userId 연동
-            @PathVariable Long driveId
+            @RequestHeader("X-User-Id") String userId, // TODO: userId 연동
+            @PathVariable String driveId
     ) {
 
         // TODO: 예외 처리하기
@@ -35,10 +36,12 @@ public class PostDriveDashboardController {
     // 2. 주행 후 대시보드 조회
     @GetMapping("/{driveId}")
     public ResponseEntity<Object> getPostDriveDashboard(
-            @PathVariable Long driveId
+            @RequestHeader("X-User-Id") String userId, // TODO: userId 연동
+            @PathVariable String driveId
     ) {
 
-        return null;
+        Drive drive = postDriveDashboardService.getPostDriveDashboard(userId, driveId);
+        return drive == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(drive);
     }
 
     // 3. 주행 후 대시보드 상세 조회 (safe, eco, prevention, attention)

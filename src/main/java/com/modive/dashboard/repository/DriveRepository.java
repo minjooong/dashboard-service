@@ -5,12 +5,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.modive.dashboard.entity.Drive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class DriveRepository {
@@ -21,8 +23,10 @@ public class DriveRepository {
         dynamoDBMapper.save(drive);
     }
 
-    public Drive findById(String driveId) {
-        return dynamoDBMapper.load(Drive.class, driveId);
+    public Drive findById(String userId, String driveId) {
+        System.out.printf("ℹ️ Finding drive by driveId: %s userId: %s%n", driveId, userId);
+
+        return dynamoDBMapper.load(Drive.class, userId, driveId);
     }
 
     public void deleteById(String driveId) {

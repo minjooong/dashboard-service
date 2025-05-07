@@ -5,92 +5,60 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @DynamoDBTable(tableName = "drive")
 @Data
 public class Drive {
-
+    // Partition Key
+    private String userId;
+    // Sort Key
     private String driveId;
+
+
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
     private Instant startTime;
+
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
     private Instant endTime;
+
     private int activeDriveDurationSec;
 
-    @DynamoDBTypeConverted(converter = InstantListConverter.class)
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> suddenAccelerations;
 
-    @DynamoDBTypeConverted(converter = InstantListConverter.class)
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> sharpTurns;
 
     private List<SpeedLog> speedLogs;
+
     private List<IdlingPeriod> idlingPeriods;
 
     private SpeedRate speedRate;
+
     private List<ReactionTime> reactionTimes;
 
-    @DynamoDBTypeConverted(converter = InstantListConverter.class)
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> laneDepartures;
 
     private List<FollowingDistanceEvent> followingDistanceEvents;
 
-    @DynamoDBTypeConverted(converter = InstantListConverter.class)
+    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> inactiveMoments;
 
-    @DynamoDBHashKey(attributeName = "driveId")
+
+    // getter
+    @DynamoDBHashKey(attributeName = "userId")
+    public String getUserId() {
+        return userId;
+    }
+
+    @DynamoDBRangeKey(attributeName = "driveId")
     public String getDriveId() {
         return driveId;
     }
 
-    public void setDriveId(String driveId) {
-        this.driveId = driveId;
-    }
 
-    @DynamoDBTypeConverted(converter = InstantConverter.class)
-    public Instant getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Instant startTime) {
-        this.startTime = startTime;
-    }
-
-    @DynamoDBTypeConverted(converter = InstantConverter.class)
-    public Instant getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
-    }
-
-    // Instant 변환기
-    public static class InstantConverter implements DynamoDBTypeConverter<String, Instant> {
-        @Override
-        public String convert(Instant object) {
-            return object.toString();
-        }
-
-        @Override
-        public Instant unconvert(String object) {
-            return Instant.parse(object);
-        }
-    }
-
-    // List<Instant> 변환기
-    public static class InstantListConverter implements DynamoDBTypeConverter<List<String>, List<Instant>> {
-        @Override
-        public List<String> convert(List<Instant> instants) {
-            return instants.stream().map(Instant::toString).collect(Collectors.toList());
-        }
-
-        @Override
-        public List<Instant> unconvert(List<String> strings) {
-            return strings.stream().map(Instant::parse).collect(Collectors.toList());
-        }
-    }
-
-    // 내부 클래스들 (모두 @DynamoDBDocument 추가)
-
+    // 내부 클래스
     @DynamoDBDocument
     @Data
     public static class SpeedLog {
@@ -101,10 +69,10 @@ public class Drive {
     @DynamoDBDocument
     @Data
     public static class IdlingPeriod {
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant startTime;
 
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant endTime;
     }
 
@@ -119,20 +87,20 @@ public class Drive {
     @DynamoDBDocument
     @Data
     public static class ReactionTime {
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant detectedAt;
 
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant reactedAt;
     }
 
     @DynamoDBDocument
     @Data
     public static class FollowingDistanceEvent {
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant startTime;
 
-        @DynamoDBTypeConverted(converter = InstantConverter.class)
+        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant endTime;
     }
 }
