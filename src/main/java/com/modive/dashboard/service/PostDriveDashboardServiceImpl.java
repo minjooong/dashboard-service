@@ -1,8 +1,12 @@
 package com.modive.dashboard.service;
 
 import com.modive.dashboard.dto.DriveListDto;
+import com.modive.dashboard.dto.ScoreDto;
 import com.modive.dashboard.entity.Drive;
+import com.modive.dashboard.entity.DriveDashboard;
+import com.modive.dashboard.repository.DriveDashboardRepository;
 import com.modive.dashboard.repository.DriveRepository;
+import com.modive.dashboard.tools.ScoreCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,25 +17,43 @@ import java.util.*;
 public class PostDriveDashboardServiceImpl implements PostDriveDashboardService {
     @Autowired
     private DriveRepository driveRepository;
+    @Autowired
+    private ScoreCalculator scoreCalculator;
+    @Autowired
+    private DriveDashboardRepository driveDashboardRepository;
 
     // 1. 주행 후 대시보드 생성
     @Override
     public void createPostDriveDashboard(String userId, String driveId) {
 
-        // TODO: driveId로 주행 데이터 가져오기 및 데이터 분석
-        // 일단 Dummy Data 가져오기
-        Drive drive = getDummyDrive(userId, driveId);
+        // 1-1. 데이터 가져와서 분석 후 저장
+        Drive drive = getDummyDrive(userId, driveId); // TODO: driveId로 주행 데이터 가져오기 및 데이터 분석
 
         driveRepository.save(drive);
+
+        // 1-2. 점수 산정 후 저장
+        ScoreDto score = scoreCalculator.calculateDriveScore(drive);
+        String feedback = "임시 피드백입니다."; // TODO: LLM 서비스에서 피드백 받아오기
+
+        DriveDashboard dashboard = new DriveDashboard();
+
+        dashboard.setUserId(userId);
+        dashboard.setDriveId(driveId);
+        dashboard.setStartTime(drive.getStartTime());
+        dashboard.setEndTime(drive.getEndTime());
+        dashboard.setScore(score);
+        dashboard.setFeedback(feedback);
+
+        driveDashboardRepository.save(dashboard);
     }
 
     // 2. 주행 후 대시보드 조회
     @Override
-    public Drive getPostDriveDashboard(String userId, String driveId) {
+    public DriveDashboard getPostDriveDashboard(String userId, String driveId) {
 
-        Drive drive = driveRepository.findById(userId, driveId);
+        DriveDashboard dashboard = driveDashboardRepository.findById(userId, driveId);
 
-        return drive;
+        return dashboard;
     }
 
     // 4. 주행 후 대시보드 목록 조회
@@ -39,6 +61,7 @@ public class PostDriveDashboardServiceImpl implements PostDriveDashboardService 
     public List<DriveListDto> getPostDriveDashboardList(String userId) {
 
         List<DriveListDto> dtos = driveRepository.listByUserId(userId);
+
         return dtos;
     }
 
@@ -134,5 +157,5 @@ public class PostDriveDashboardServiceImpl implements PostDriveDashboardService 
         instants.sort(Comparator.naturalOrder());
         return instants;
     }
-// </editor-fold>
+    // </editor-fold>
 }

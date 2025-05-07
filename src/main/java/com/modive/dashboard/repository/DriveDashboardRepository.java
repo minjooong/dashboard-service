@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.modive.dashboard.dto.DriveListDto;
 import com.modive.dashboard.entity.Drive;
+import com.modive.dashboard.entity.DriveDashboard;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -18,48 +19,48 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class DriveRepository {
+public class DriveDashboardRepository{
 
     private final DynamoDBMapper dynamoDBMapper;
 
-    public void save(Drive drive) {
-        dynamoDBMapper.save(drive);
+    public void save(DriveDashboard driveDashboard) {
+        dynamoDBMapper.save(driveDashboard);
     }
 
-    public Drive findById(String userId, String driveId) {
-        return dynamoDBMapper.load(Drive.class, userId, driveId);
+    public DriveDashboard findById(String userId, String driveId) {
+        return dynamoDBMapper.load(DriveDashboard.class, userId, driveId);
     }
 
     public List<DriveListDto> listByUserId(String userId) {
         // 1. 키 객체 생성 (userId만 설정)
-        Drive keyObject = new Drive();
+        DriveDashboard keyObject = new DriveDashboard();
         keyObject.setUserId(userId);
 
         // 2. 쿼리 조건 설정
-        DynamoDBQueryExpression<Drive> queryExpression = new DynamoDBQueryExpression<Drive>()
+        DynamoDBQueryExpression<DriveDashboard> queryExpression = new DynamoDBQueryExpression<DriveDashboard>()
                 .withHashKeyValues(keyObject);
 
         // 3. 쿼리 실행
-        List<Drive> drives = dynamoDBMapper.query(Drive.class, queryExpression);
+        List<DriveDashboard> dashboards = dynamoDBMapper.query(DriveDashboard.class, queryExpression);
 
         // 4. 필요한 필드만 DriveListDto로 매핑
-        return drives.stream()
+        return dashboards.stream()
                 .map(d -> new DriveListDto(d.getDriveId(), d.getStartTime(), d.getEndTime()))
                 .collect(Collectors.toList());
     }
 
     public void deleteById(String driveId) {
-        Drive drive = new Drive();
-        drive.setDriveId(driveId);
-        dynamoDBMapper.delete(drive);
+        DriveDashboard dashboard = new DriveDashboard();
+        dashboard.setDriveId(driveId);
+        dynamoDBMapper.delete(dashboard);
     }
 
-    public List<Drive> findAll() {
-        return dynamoDBMapper.scan(Drive.class, new DynamoDBScanExpression());
+    public List<DriveDashboard> findAll() {
+        return dynamoDBMapper.scan(DriveDashboard.class, new DynamoDBScanExpression());
     }
 
     // 특정 기간 이후 시작된 Drive 조회
-    public List<Drive> findByStartTimeAfter(String isoStartTime) {
+    public List<DriveDashboard> findByStartTimeAfter(String isoStartTime) {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":startTime", new AttributeValue().withS(isoStartTime));
 
@@ -67,6 +68,6 @@ public class DriveRepository {
                 .withFilterExpression("startTime > :startTime")
                 .withExpressionAttributeValues(eav);
 
-        return dynamoDBMapper.scan(Drive.class, scanExpression);
+        return dynamoDBMapper.scan(DriveDashboard.class, scanExpression);
     }
 }

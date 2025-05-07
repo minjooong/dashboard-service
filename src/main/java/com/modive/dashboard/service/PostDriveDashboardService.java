@@ -1,8 +1,8 @@
 package com.modive.dashboard.service;
 
 import com.modive.dashboard.dto.DriveListDto;
-import com.modive.dashboard.dto.PostDriveDashboardResponse;
 import com.modive.dashboard.entity.Drive;
+import com.modive.dashboard.entity.DriveDashboard;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface PostDriveDashboardService {
     void createPostDriveDashboard(String userId, String driveId);
 
     // 2. 주행 후 대시보드 조회
-    Drive getPostDriveDashboard(String userId, String driveId);
+    DriveDashboard getPostDriveDashboard(String userId, String driveId);
 
 //    // 3. 주행 후 대시보드 상세 조회 (safe, eco, prevention, attention)
 //    // TODO: 점수별 상세 조회 반환 타입 DTO 정하기

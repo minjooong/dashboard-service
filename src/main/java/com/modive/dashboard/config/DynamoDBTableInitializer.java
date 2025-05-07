@@ -41,4 +41,27 @@ public class DynamoDBTableInitializer {
         }
     }
 
+    @PostConstruct
+    public void createDriveDashboardIfNotExists() {
+        ListTablesResult tables = dynamoDB.listTables();
+        if (!tables.getTableNames().contains("drive-dashboard")) {
+            CreateTableRequest request = new CreateTableRequest()
+                    .withTableName("drive-dashboard")
+                    .withKeySchema(
+                            new KeySchemaElement("userId", KeyType.HASH),
+                            new KeySchemaElement("driveId", KeyType.RANGE)
+                    )
+                    .withAttributeDefinitions(
+                            new AttributeDefinition("userId", ScalarAttributeType.S),
+                            new AttributeDefinition("driveId", ScalarAttributeType.S)
+                    )
+                    .withBillingMode(BillingMode.PAY_PER_REQUEST);
+
+            dynamoDB.createTable(request);
+            System.out.println("✅ DynamoDB 테이블 'drive-dashboard' 생성됨");
+        } else {
+            System.out.println("ℹ️ DynamoDB 테이블 'drive-dashboard' 이미 존재함");
+        }
+    }
+
 }

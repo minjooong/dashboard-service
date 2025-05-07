@@ -1,6 +1,7 @@
 package com.modive.dashboard.entity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.modive.dashboard.tools.TypeConverter;
 import lombok.Data;
 
 import java.time.Instant;

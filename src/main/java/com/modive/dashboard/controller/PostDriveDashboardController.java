@@ -2,6 +2,7 @@ package com.modive.dashboard.controller;
 
 import com.modive.dashboard.dto.DriveListDto;
 import com.modive.dashboard.entity.Drive;
+import com.modive.dashboard.entity.DriveDashboard;
 import com.modive.dashboard.enums.ScoreType;
 import com.modive.dashboard.service.PostDriveDashboardService;
 import com.modive.dashboard.service.TotalDashboardService;
@@ -42,7 +43,7 @@ public class PostDriveDashboardController {
             @PathVariable String driveId
     ) {
 
-        Drive drive = postDriveDashboardService.getPostDriveDashboard(userId, driveId);
+        DriveDashboard drive = postDriveDashboardService.getPostDriveDashboard(userId, driveId);
         return drive == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(drive);
     }
 
