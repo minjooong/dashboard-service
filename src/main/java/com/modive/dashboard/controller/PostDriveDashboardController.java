@@ -1,5 +1,6 @@
 package com.modive.dashboard.controller;
 
+import com.modive.dashboard.dto.DriveListDto;
 import com.modive.dashboard.entity.Drive;
 import com.modive.dashboard.enums.ScoreType;
 import com.modive.dashboard.service.PostDriveDashboardService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard/post-drive")
@@ -48,6 +50,14 @@ public class PostDriveDashboardController {
 
 
     // 4. 주행 후 대시보드 목록 조회
+    @GetMapping()
+    public ResponseEntity<Object> getPostDriveDashboards(
+            @RequestHeader("X-User-Id") String userId // TODO: userId 연동
+    ) {
+
+        List<DriveListDto> dtos = postDriveDashboardService.getPostDriveDashboardList(userId);
+        return ResponseEntity.ok(dtos);
+    }
 
 
 

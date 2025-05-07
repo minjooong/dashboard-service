@@ -1,5 +1,6 @@
 package com.modive.dashboard.service;
 
+import com.modive.dashboard.dto.DriveListDto;
 import com.modive.dashboard.entity.Drive;
 import com.modive.dashboard.repository.DriveRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ public class PostDriveDashboardServiceImpl implements PostDriveDashboardService 
     @Autowired
     private DriveRepository driveRepository;
 
+    // 1. 주행 후 대시보드 생성
     @Override
     public void createPostDriveDashboard(String userId, String driveId) {
 
@@ -23,6 +25,7 @@ public class PostDriveDashboardServiceImpl implements PostDriveDashboardService 
         driveRepository.save(drive);
     }
 
+    // 2. 주행 후 대시보드 조회
     @Override
     public Drive getPostDriveDashboard(String userId, String driveId) {
 
@@ -31,7 +34,15 @@ public class PostDriveDashboardServiceImpl implements PostDriveDashboardService 
         return drive;
     }
 
-// <editor-fold desc="# Get dummy data">
+    // 4. 주행 후 대시보드 목록 조회
+    @Override
+    public List<DriveListDto> getPostDriveDashboardList(String userId) {
+
+        List<DriveListDto> dtos = driveRepository.listByUserId(userId);
+        return dtos;
+    }
+
+    // <editor-fold desc="# Get dummy data">
     private Drive getDummyDrive(String userId, String driveId) {
         Instant startTime = Instant.parse("2025-04-25T08:00:00Z");
         Instant endTime = Instant.parse("2025-04-25T10:00:00Z");
