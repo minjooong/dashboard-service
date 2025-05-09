@@ -1,5 +1,7 @@
 package com.modive.dashboard.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum ScoreType {
     // 1. 안전 운전 점수
     SAFE,
@@ -11,5 +13,11 @@ public enum ScoreType {
     PREVENTION,
 
     // 4. 주의력 점수
-    ATTENTION
+    ATTENTION;
+
+    @JsonCreator
+    public static ScoreType fromString(String value) {
+        return ScoreType.valueOf(value.toUpperCase());
+    }
+
 }

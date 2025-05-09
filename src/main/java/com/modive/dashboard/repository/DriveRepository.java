@@ -30,23 +30,23 @@ public class DriveRepository {
         return dynamoDBMapper.load(Drive.class, userId, driveId);
     }
 
-    public List<DriveListDto> listByUserId(String userId) {
-        // 1. 키 객체 생성 (userId만 설정)
-        Drive keyObject = new Drive();
-        keyObject.setUserId(userId);
-
-        // 2. 쿼리 조건 설정
-        DynamoDBQueryExpression<Drive> queryExpression = new DynamoDBQueryExpression<Drive>()
-                .withHashKeyValues(keyObject);
-
-        // 3. 쿼리 실행
-        List<Drive> drives = dynamoDBMapper.query(Drive.class, queryExpression);
-
-        // 4. 필요한 필드만 DriveListDto로 매핑
-        return drives.stream()
-                .map(d -> new DriveListDto(d.getDriveId(), d.getStartTime(), d.getEndTime()))
-                .collect(Collectors.toList());
-    }
+//    public List<DriveListDto> listByUserId(String userId) {
+//        // 1. 키 객체 생성 (userId만 설정)
+//        Drive keyObject = new Drive();
+//        keyObject.setUserId(userId);
+//
+//        // 2. 쿼리 조건 설정
+//        DynamoDBQueryExpression<Drive> queryExpression = new DynamoDBQueryExpression<Drive>()
+//                .withHashKeyValues(keyObject);
+//
+//        // 3. 쿼리 실행
+//        List<Drive> drives = dynamoDBMapper.query(Drive.class, queryExpression);
+//
+//        // 4. 필요한 필드만 DriveListDto로 매핑
+//        return drives.stream()
+//                .map(d -> new DriveListDto(d.getDriveId(), d.getStartTime(), d.getEndTime()))
+//                .collect(Collectors.toList());
+//    }
 
     public void deleteById(String driveId) {
         Drive drive = new Drive();

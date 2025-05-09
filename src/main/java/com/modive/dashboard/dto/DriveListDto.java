@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class DriveListDto {
     private String driveId;
-    private Instant driveStartDateTime;
-    private Instant driveEndDateTime;
-    //private float driveScore;
+    private Instant startTime;
+    private Instant endTime;
+    private double score;
 }

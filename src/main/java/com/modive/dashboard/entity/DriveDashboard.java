@@ -1,6 +1,7 @@
 package com.modive.dashboard.entity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.modive.dashboard.dto.DriveFeedbacksDto;
 import com.modive.dashboard.dto.ScoreDto;
 import com.modive.dashboard.tools.TypeConverter;
 import lombok.Data;
@@ -22,10 +23,9 @@ public class DriveDashboard {
     @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
     private Instant endTime;
 
-    @DynamoDBTypeConverted(converter = TypeConverter.ScoreDtoConverter.class)
-    private ScoreDto score;
+    private ScoreDto scores;
 
-    private String feedback;
+    private DriveFeedbacksDto feedbacks;
 
     // getter
     @DynamoDBHashKey(attributeName = "userId")

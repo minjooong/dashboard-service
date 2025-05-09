@@ -45,7 +45,7 @@ public class DriveDashboardRepository{
 
         // 4. 필요한 필드만 DriveListDto로 매핑
         return dashboards.stream()
-                .map(d -> new DriveListDto(d.getDriveId(), d.getStartTime(), d.getEndTime()))
+                .map(d -> new DriveListDto(d.getDriveId(), d.getStartTime(), d.getEndTime(), d.getScores().totalScore))
                 .collect(Collectors.toList());
     }
 

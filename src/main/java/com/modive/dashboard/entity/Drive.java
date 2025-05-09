@@ -2,7 +2,9 @@ package com.modive.dashboard.entity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.modive.dashboard.tools.TypeConverter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,30 +26,27 @@ public class Drive {
 
     private int activeDriveDurationSec;
 
-    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
-    private List<Instant> suddenAccelerations;
+    private List<TimeWithFlag> suddenAccelerations;
 
-    @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
-    private List<Instant> sharpTurns;
+    private List<TimeWithFlag> sharpTurns;
 
     private List<SpeedLog> speedLogs;
 
-    private List<IdlingPeriod> idlingPeriods;
+    private List<StartEndTime> idlingPeriods;
 
-    private SpeedRate speedRate;
+    private List<SpeedRate> speedRate;
 
-    private List<ReactionTime> reactionTimes;
+    private List<StartEndTime> reactionTimes;
 
     @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> laneDepartures;
 
-    private List<FollowingDistanceEvent> followingDistanceEvents;
+    private List<StartEndTime> followingDistanceEvents;
 
     @DynamoDBTypeConverted(converter = TypeConverter.InstantListConverter.class)
     private List<Instant> inactiveMoments;
 
-
-    // getter
+    // <editor-fold desc="# Getter for key">
     @DynamoDBHashKey(attributeName = "userId")
     public String getUserId() {
         return userId;
@@ -57,9 +56,9 @@ public class Drive {
     public String getDriveId() {
         return driveId;
     }
+    // </editor-fold>
 
-
-    // 내부 클래스
+    //<editor-fold desc="# Inner Classes">
     @DynamoDBDocument
     @Data
     public static class SpeedLog {
@@ -69,7 +68,9 @@ public class Drive {
 
     @DynamoDBDocument
     @Data
-    public static class IdlingPeriod {
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class StartEndTime {
         @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
         private Instant startTime;
 
@@ -79,29 +80,20 @@ public class Drive {
 
     @DynamoDBDocument
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SpeedRate {
-        private int low;
-        private int middle;
-        private int high;
+        private String tag;
+        private int ratio;
     }
 
     @DynamoDBDocument
     @Data
-    public static class ReactionTime {
+    public static class TimeWithFlag {
         @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
-        private Instant detectedAt;
-
-        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
-        private Instant reactedAt;
+        private Instant time;
+        @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.BOOL)
+        private boolean flag;
     }
-
-    @DynamoDBDocument
-    @Data
-    public static class FollowingDistanceEvent {
-        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
-        private Instant startTime;
-
-        @DynamoDBTypeConverted(converter = TypeConverter.InstantConverter.class)
-        private Instant endTime;
-    }
+    //</editor-fold>
 }

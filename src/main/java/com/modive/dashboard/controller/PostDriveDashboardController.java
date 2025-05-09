@@ -1,5 +1,7 @@
 package com.modive.dashboard.controller;
 
+import com.modive.dashboard.dto.DriveDashboardResponse;
+import com.modive.dashboard.dto.DriveDetailDto;
 import com.modive.dashboard.dto.DriveListDto;
 import com.modive.dashboard.entity.Drive;
 import com.modive.dashboard.entity.DriveDashboard;
@@ -43,12 +45,30 @@ public class PostDriveDashboardController {
             @PathVariable String driveId
     ) {
 
-        DriveDashboard drive = postDriveDashboardService.getPostDriveDashboard(userId, driveId);
+        DriveDashboardResponse drive = postDriveDashboardService.getPostDriveDashboard(userId, driveId);
+
         return drive == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(drive);
     }
 
     // 3. 주행 후 대시보드 상세 조회 (safe, eco, prevention, attention)
+    @GetMapping("/{driveId}/{scoreType}")
+    public ResponseEntity<Object> getDetailDashboard(
+            @RequestHeader("X-User-Id") String userId, // TODO: userId 연동
+            @PathVariable String driveId,
+            @PathVariable String scoreType
+    ) {
+        ScoreType type;
+        try {
+            type = ScoreType.fromString(scoreType);
+        } catch (IllegalArgumentException e) {
+            // TODO: 오류 처리
+            return ResponseEntity.badRequest().body("Invalid scoreType: " + scoreType);
+        }
 
+        DriveDetailDto detail = postDriveDashboardService.getPostDriveDashboardByType(userId, driveId, type);
+
+        return detail == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(detail);
+    }
 
     // 4. 주행 후 대시보드 목록 조회
     @GetMapping()

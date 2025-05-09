@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ScoreCalculator {
@@ -45,7 +48,7 @@ public class ScoreCalculator {
     // 탄소 배출 점수: 공회전
     private double calcIdlingScore(Drive drive) {
         int score = 100;
-        for (Drive.IdlingPeriod period : drive.getIdlingPeriods()) {
+        for (Drive.StartEndTime period : drive.getIdlingPeriods()) {
             long seconds = Duration.between(period.getStartTime(), period.getEndTime()).getSeconds();
             if (seconds >= 120) {
                 score -= (int) ((seconds - 120) / 30) * 5;
@@ -56,19 +59,39 @@ public class ScoreCalculator {
 
     // 탄소 배출 점수: 정속주행
     private double calcSpeedMaintainScore(Drive drive) {
-        return drive.getSpeedRate().getMiddle();
+        return drive.getSpeedRate().stream()
+                .filter(sr -> "middle".equals(sr.getTag()))
+                .map(sr -> sr.getRatio())
+                .findFirst()
+                .orElse(100);
     }
 
-    // 안전운전 점수: 급가속/급감속 (횟수당 5점 감점)
+    // 안전운전 점수: 급가속/급감속
     private double calcAccelerationScore(Drive drive) {
-        int count = drive.getSuddenAccelerations().size();
-        return Math.max(0, 100 - 5 * count);
-    }
+            List<Drive.TimeWithFlag> accelerations = drive.getSuddenAccelerations();
 
-    // 안전운전 점수: 급회전 (횟수당 10점 감점)
+            long b = accelerations.size();
+            if (b == 0) return 100;
+
+            long a = accelerations.stream()
+                    .filter(t -> t.isFlag())
+                    .count();
+
+            return 100.0 * a / b;
+        }
+
+    // 안전운전 점수: 급회전
     private double calcSharpTurnScore(Drive drive) {
-        int count = drive.getSharpTurns().size();
-        return Math.max(0, 100 - 10 * count);
+        List<Drive.TimeWithFlag> sharpTurns = drive.getSharpTurns();
+
+        long b = sharpTurns.size();
+        if (b == 0) return 100;
+
+        long a = sharpTurns.stream()
+                .filter(t -> t.isFlag())
+                .count();
+
+        return 100.0 * a / b;
     }
 
     // 안전운전 점수: 과속 (횟수당 감점)
@@ -91,8 +114,8 @@ public class ScoreCalculator {
     // 사고 예방 점수: 반응속도
     private double calcReactionTimeScore(Drive drive) {
         double x = 0, y = 0;
-        for (Drive.ReactionTime rt : drive.getReactionTimes()) {
-            double delta = Duration.between(rt.getDetectedAt(), rt.getReactedAt()).toMillis() / 1000.0;
+        for (Drive.StartEndTime rt : drive.getReactionTimes()) {
+            double delta = Duration.between(rt.getStartTime(), rt.getEndTime()).toMillis() / 1000.0;
             if (delta < 0.9) x++;
             else y++;
         }
